@@ -1,6 +1,9 @@
 import sqlite3
+import os
 
-# The Schema Script: This creates the "Recipe" for your database
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR,"project_database.db",)
+
 SCHEMA_SQL = """
 BEGIN TRANSACTION;
 CREATE TABLE IF NOT EXISTS "approvals" (
@@ -182,6 +185,6 @@ COMMIT;
 """
 
 def connect_db():
-    conn = sqlite3.connect("v1-desktop-prototype/database/project_database.db")
+    conn = sqlite3.connect(DB_PATH)
     conn.executescript(SCHEMA_SQL)
     return conn

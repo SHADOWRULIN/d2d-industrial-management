@@ -1,3 +1,4 @@
+import os
 import tkinter as tk
 from PIL import Image, ImageTk
 from gui.proposal_submission import ProposalSubmissionGUI
@@ -13,7 +14,9 @@ class ClientDashboard:
         self.root.geometry("800x500")
 
         # Load and place logo (left-aligned)
-        self.logo_image = Image.open("v1-desktop-prototype/assets/logo.jpg")
+        assets_path = os.path.join(os.getcwd(), "assets")
+        director_img_path = os.path.join(assets_path, "logo.jpg")
+        self.logo_image = Image.open(director_img_path)
         self.logo_image = self.logo_image.resize((100, 100), Image.Resampling.LANCZOS)
         self.logo_photo = ImageTk.PhotoImage(self.logo_image)
 

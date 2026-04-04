@@ -18,7 +18,7 @@ class DirectorDashboard:
         frame.pack(fill="both", expand=True, padx=20, pady=10)
 
         # ✅ Load images
-        assets_path = os.path.join(os.getcwd(), "v1-desktop-prototype/assets")
+        assets_path = os.path.join(os.getcwd(), "assets")
         logo_path = os.path.join(assets_path, "logo.jpg")
         director_img_path = os.path.join(assets_path, "director.jpeg")
 
