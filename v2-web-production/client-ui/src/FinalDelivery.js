@@ -1,0 +1,148 @@
+import React, { useState, useEffect, useCallback } from "react";
+import axios from "axios";
+import { motion } from "framer-motion";
+import { useNavigate, useParams } from "react-router-dom";
+
+const FinalDelivery = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [history, setHistory] = useState([]);
+  const [address, setAddress] = useState("");
+
+  const loadHistory = useCallback(() => {
+    axios.get(`http://127.0.0.1:5000/api/director/delivery/${id}`)
+         .then(res => setHistory(res.data));
+  }, [id]);
+
+  useEffect(() => { loadHistory(); }, [loadHistory]);
+
+  const handleSave = async (e) => {
+    e.preventDefault();
+    try {
+        await axios.post("http://127.0.0.1:5000/api/director/delivery/add", { proposal_id: id, address: address });
+        alert("✅ Marked as Delivered!");
+        setAddress(""); // Clear input
+        loadHistory();
+    } catch (err) { alert("Error saving data"); }
+  };
+
+  return (
+    <div style={styles.container}>
+      <motion.div 
+        initial={{ y: 20, opacity: 0 }} 
+        animate={{ y: 0, opacity: 1 }} 
+        style={styles.card}
+      >
+        <div style={styles.header}>
+            <button onClick={() => navigate(`/director/project/${id}/delivery`)} style={styles.backBtn}>← Back</button>
+            <h2 style={{margin:0, fontSize: '22px'}}>Final Delivery</h2>
+        </div>
+
+        <h3 style={{color: '#69F0AE', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '10px'}}>Shipping Information</h3>
+        
+        <form onSubmit={handleSave} style={styles.form}>
+            <label style={styles.label}>Delivery Address</label>
+            <input 
+                style={styles.input} 
+                placeholder="Enter full address..." 
+                value={address} 
+                onChange={e => setAddress(e.target.value)} 
+                required 
+            />
+            <button style={styles.btn}>✅ Mark as Delivered</button>
+        </form>
+
+        <h3 style={{marginTop: '30px', color: '#fff'}}>Delivery Status</h3>
+        <div style={styles.listContainer}>
+            {history.length === 0 ? <p style={{color: '#888'}}>Status: Pending...</p> : 
+                history.map((h, i) => (
+                    <div key={i} style={styles.statusBox}>
+                        <p style={{color: '#ddd', margin: '5px 0'}}><strong>Address:</strong> {h.address}</p>
+                        <p style={{color: '#69F0AE', fontWeight: 'bold', margin: '5px 0'}}>Status: {h.status}</p>
+                    </div>
+                ))
+            }
+        </div>
+      </motion.div>
+    </div>
+  );
+};
+
+const styles = {
+  container: { 
+    minHeight: "100vh", 
+    background: "#121212", 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center',
+    fontFamily: "'Segoe UI', sans-serif"
+  },
+  
+  card: { 
+    background: "rgba(255, 255, 255, 0.05)", 
+    backdropFilter: "blur(10px)",
+    width: "500px", 
+    padding: "40px", 
+    borderRadius: "20px", 
+    border: "1px solid rgba(255, 255, 255, 0.1)",
+    boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
+    color: "white"
+  },
+  
+  header: { 
+    display: 'flex', 
+    alignItems: 'center', 
+    gap: '20px', 
+    marginBottom: '30px', 
+    borderBottom: '1px solid rgba(255,255,255,0.1)', 
+    paddingBottom: '15px' 
+  },
+  
+  backBtn: { 
+    background: "rgba(255,255,255,0.1)", 
+    border: "1px solid rgba(255,255,255,0.2)", 
+    color: "white", 
+    padding: "8px 15px", 
+    borderRadius: "20px", 
+    cursor: "pointer",
+    transition: "all 0.3s"
+  },
+  
+  form: { display: "flex", flexDirection: "column", gap: "15px" },
+  label: { fontWeight: "bold", fontSize: "14px", color: "#aaa", marginBottom: "-5px" },
+  
+  input: { 
+    padding: "12px", 
+    borderRadius: "8px", 
+    border: "1px solid rgba(255,255,255,0.1)", 
+    background: "rgba(0,0,0,0.3)", 
+    color: "white",
+    fontSize: "16px",
+    outline: "none"
+  },
+  
+  btn: { 
+    padding: "15px", 
+    background: "linear-gradient(90deg, #00C853, #69F0AE)", 
+    color: "black", 
+    border: "none", 
+    borderRadius: "8px", 
+    cursor: "pointer", 
+    fontWeight: "bold",
+    marginTop: "10px",
+    fontSize: "16px",
+    boxShadow: "0 5px 15px rgba(0, 200, 83, 0.3)"
+  },
+  
+  statusBox: { 
+    background: 'rgba(255,255,255,0.05)', 
+    padding: '15px', 
+    borderRadius: '10px', 
+    marginTop: '10px',
+    borderLeft: '4px solid #69F0AE'
+  },
+  
+  listContainer: { maxHeight: '200px', overflowY: 'auto' }
+};
+
+export default FinalDelivery;

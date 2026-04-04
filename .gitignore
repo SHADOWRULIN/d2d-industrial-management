@@ -1,3 +1,4 @@
+**/node_modules/
 # --- PYTHON & FLASK (V1 & V2 Backend) ---
 __pycache__/
 *.py[cod]
