@@ -31,9 +31,12 @@ v1-desktop-prototype/database/project_database.db
 v2-web-production/server/database/project_database.db
 
 # Ignore generated invoices or PDFs
-invoices/
-*.pdf
+**/invoices/*.pdf
 v1-desktop-prototype/database/invoices/
+
+# Ensure everything in the docs folder is tracked, even if it's a PDF
+!docs/**/*.pdf
+!docs/**/*.png
 
 # --- IDE & SYSTEM FILES ---
 .vscode/
