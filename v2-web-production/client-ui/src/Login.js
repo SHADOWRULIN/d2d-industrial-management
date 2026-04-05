@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -37,7 +38,7 @@ const Login = () => {
 
     try {
       const endpoint = isLogin ? "/api/client/login" : "/api/client/signup"; 
-      const url = `http://127.0.0.1:5000${endpoint}`;
+      const url = `${API_BASE_URL}${endpoint}`;
       
       const response = await axios.post(url, formData);
 

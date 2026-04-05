@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const SubmitProposal = () => {
   const navigate = useNavigate();
@@ -31,7 +32,7 @@ const SubmitProposal = () => {
     if (file) data.append("image", file);
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/proposals/create", data, {
+      const response = await axios.post(`${API_BASE_URL}/api/proposals/create`, data, {
           headers: { 'Content-Type': 'multipart/form-data' }
       });
       if (response.data.success) {

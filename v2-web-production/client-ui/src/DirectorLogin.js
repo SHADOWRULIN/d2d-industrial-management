@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const DirectorLogin = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -17,7 +18,7 @@ const DirectorLogin = () => {
     setMessage("");
 
     try {
-      const response = await axios.post("http://127.0.0.1:5000/api/director/login", formData);
+      const response = await axios.post(`${API_BASE_URL}/api/director/login`, formData);
       if (response.data.success) {
         localStorage.setItem("director_auth", "true");
         navigate("/director/dashboard");

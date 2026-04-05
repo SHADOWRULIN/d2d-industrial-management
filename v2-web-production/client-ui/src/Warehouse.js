@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Warehouse = () => {
   const { id } = useParams();
@@ -13,7 +14,7 @@ const Warehouse = () => {
   const [type, setType] = useState("Inhouse"); 
 
   const loadDocs = useCallback(() => {
-    axios.get(`http://127.0.0.1:5000/api/director/warehouse/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/warehouse/${id}`)
          .then(res => setDocs(res.data))
          .catch(err => console.error(err));
   }, [id]);
@@ -30,7 +31,7 @@ const Warehouse = () => {
     data.append("file", file);
 
     try {
-        const res = await axios.post("http://127.0.0.1:5000/api/director/warehouse/upload", data);
+        const res = await axios.post(`${API_BASE_URL}/api/director/warehouse/upload`, data);
         
         // ✅ FIX: Check if server actually saved it
         if (res.data.success) {

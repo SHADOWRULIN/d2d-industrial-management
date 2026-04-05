@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Accounts = () => {
   const { id } = useParams();
@@ -11,7 +12,7 @@ const Accounts = () => {
 
   useEffect(() => {
     if (!localStorage.getItem("director_auth")) navigate("/director");
-    axios.get(`http://127.0.0.1:5000/api/director/financial_summary/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/financial_summary/${id}`)
       .then(res => setSummary(res.data))
       .catch(err => console.error(err));
   }, [id, navigate, activeTab]);
@@ -60,14 +61,14 @@ const PaymentsView = ({ proposalId }) => {
     const [form, setForm] = useState({ amount: "", status: "Paid", payment_date: "" });
 
     useEffect(() => {
-        axios.get(`http://127.0.0.1:5000/api/director/payments/${proposalId}`).then(res => setPayments(res.data));
-        axios.get(`http://127.0.0.1:5000/api/director/vendors/${proposalId}`).then(res => setVendorsList(res.data));
+        axios.get(`${API_BASE_URL}/api/director/payments/${proposalId}`).then(res => setPayments(res.data));
+        axios.get(`${API_BASE_URL}/api/director/vendors/${proposalId}`).then(res => setVendorsList(res.data));
     }, [proposalId]);
 
     const checkDue = async () => {
         if(!vendorName) return alert("Select a Vendor");
         try {
-            const res = await axios.post("http://127.0.0.1:5000/api/director/vendor_due", { proposal_id: proposalId, vendor_name: vendorName });
+            const res = await axios.post(`${API_BASE_URL}/api/director/vendor_due`, { proposal_id: proposalId, vendor_name: vendorName });
             if(res.data.success) {
                 setDueInfo(res.data);
                 setForm({...form, amount: res.data.remaining});
@@ -77,12 +78,12 @@ const PaymentsView = ({ proposalId }) => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        await axios.post("http://127.0.0.1:5000/api/director/payments/add", { 
+        await axios.post(`${API_BASE_URL}/api/director/payments/add`, { 
             proposal_id: proposalId, serial_number: payments.length + 1, vendor_name: vendorName,
             vendor_phone: dueInfo?.phone || "", vendor_type: dueInfo?.type || "", amount: form.amount, status: form.status, payment_date: form.payment_date
         });
         alert("✅ Transaction Recorded!");
-        axios.get(`http://127.0.0.1:5000/api/director/payments/${proposalId}`).then(res => setPayments(res.data));
+        axios.get(`${API_BASE_URL}/api/director/payments/${proposalId}`).then(res => setPayments(res.data));
     };
 
     return (
@@ -154,8 +155,8 @@ const BillsView = ({ proposalId }) => {
     const [form, setForm] = useState({ vendor_name: "", vendor_phone: "", vendor_type: "Raw Material", material: "", quantity: 1, price: 0, date: "" });
 
     const refreshData = useCallback(() => {
-        axios.get(`http://127.0.0.1:5000/api/director/bills/${proposalId}`).then(res => setBills(res.data));
-        axios.get(`http://127.0.0.1:5000/api/director/vendors/${proposalId}`).then(res => setVendorsList(res.data));
+        axios.get(`${API_BASE_URL}/api/director/bills/${proposalId}`).then(res => setBills(res.data));
+        axios.get(`${API_BASE_URL}/api/director/vendors/${proposalId}`).then(res => setVendorsList(res.data));
     }, [proposalId]);
 
     useEffect(() => { refreshData(); }, [refreshData]);
@@ -163,7 +164,7 @@ const BillsView = ({ proposalId }) => {
     const handleAddBill = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post("http://127.0.0.1:5000/api/director/bills/add", { ...form, proposal_id: proposalId });
+            const response = await axios.post(`${API_BASE_URL}/api/director/bills/add`, { ...form, proposal_id: proposalId });
             if (response.data.success) {
                 alert("✅ Bill Added Successfully!");
                 refreshData(); 

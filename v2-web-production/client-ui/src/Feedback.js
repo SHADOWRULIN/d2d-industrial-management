@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Feedback = () => {
   const navigate = useNavigate();
@@ -11,7 +12,7 @@ const Feedback = () => {
   const [hoverRating, setHoverRating] = useState(0);
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:5000/api/client/proposals/${clientId}`)
+    axios.get(`${API_BASE_URL}/api/client/proposals/${clientId}`)
       .then(res => setProposals(res.data))
       .catch(err => console.error("Error fetching projects"));
   }, [clientId]);
@@ -20,7 +21,7 @@ const Feedback = () => {
     e.preventDefault();
     if (!formData.proposal_id || formData.rating === 0) return alert("Please select a project and rating.");
     try {
-      await axios.post("http://127.0.0.1:5000/api/client/feedback", formData);
+      await axios.post(`${API_BASE_URL}/api/client/feedback`, formData);
       alert("Thank you!");
       navigate("/dashboard");
     } catch (error) { alert("Error sending feedback."); }

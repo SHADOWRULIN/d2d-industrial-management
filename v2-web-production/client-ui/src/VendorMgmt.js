@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const VendorMgmt = () => {
   const { id } = useParams();
@@ -20,12 +21,12 @@ const VendorMgmt = () => {
 
   const loadData = useCallback(() => {
     // Fetch Vendors
-    axios.get(`http://127.0.0.1:5000/api/director/vendors/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/vendors/${id}`)
          .then(res => setVendorsList(res.data))
          .catch(err => console.error("Error loading vendor list"));
 
     // Fetch History
-    axios.get(`http://127.0.0.1:5000/api/director/vendor_orders/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/vendor_orders/${id}`)
          .then(res => setHistory(res.data))
          .catch(err => console.error("Error loading history"));
   }, [id]);
@@ -82,7 +83,7 @@ const VendorMgmt = () => {
     };
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/director/vendor_orders/add", payload);
+      const res = await axios.post(`${API_BASE_URL}/api/director/vendor_orders/add`, payload);
       
       if (res.data.success) {
         setMessage({ type: 'success', text: "✅ Order Saved Successfully!" });

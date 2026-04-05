@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const DirectorFeedbackView = () => {
   const { id } = useParams();
@@ -10,7 +11,7 @@ const DirectorFeedbackView = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    axios.get(`http://127.0.0.1:5000/api/director/feedback/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/feedback/${id}`)
       .then(res => {
         setFeedbackList(res.data);
         setLoading(false);

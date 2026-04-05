@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const WorkerLogin = () => {
   const [formData, setFormData] = useState({ username: "", password: "" });
@@ -13,7 +14,7 @@ const WorkerLogin = () => {
     setMessage(""); // Reset message
 
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/worker/login", formData);
+      const res = await axios.post(`${API_BASE_URL}/api/worker/login`, formData);
       if (res.data.success) {
         localStorage.setItem("worker_auth", "true");
         localStorage.setItem("worker_id", res.data.worker_id);

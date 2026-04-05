@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Inquiry = () => {
   const navigate = useNavigate();
@@ -12,7 +13,7 @@ const Inquiry = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`http://127.0.0.1:5000/api/client/proposals/${clientId}`);
+        const response = await axios.get(`${API_BASE_URL}/api/client/proposals/${clientId}`);
         // Sort by ID descending (newest first)
         setProposals(response.data.sort((a,b) => b.proposal_id - a.proposal_id));
       } catch (error) { console.error(error); } finally { setLoading(false); }

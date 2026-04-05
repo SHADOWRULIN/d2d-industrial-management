@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const ProjectStatus = () => {
   const { id } = useParams();
@@ -12,7 +13,7 @@ const ProjectStatus = () => {
 
   useEffect(() => {
     if (!localStorage.getItem("director_auth")) navigate("/director");
-    axios.get(`http://127.0.0.1:5000/api/director/project/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/project/${id}`)
       .then(res => {
         setFormData({
             workflow_status: res.data.workflow_status || "Design",
@@ -34,7 +35,7 @@ const ProjectStatus = () => {
     if (files.detail_pdf) data.append("detail_pdf", files.detail_pdf);
 
     try {
-      await axios.post("http://127.0.0.1:5000/api/director/update_project", data);
+      await axios.post(`${API_BASE_URL}/api/director/update_project`, data);
       alert("✅ Status Updated Successfully!");
       navigate(`/director/project/${id}`);
     } catch (error) {

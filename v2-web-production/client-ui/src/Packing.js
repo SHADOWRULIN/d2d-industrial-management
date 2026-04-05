@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Packing = () => {
   const { id } = useParams();
@@ -10,7 +11,7 @@ const Packing = () => {
   const [form, setForm] = useState({ worker_name: "", start_date: "", end_date: "" });
 
   const loadHistory = useCallback(() => {
-    axios.get(`http://127.0.0.1:5000/api/director/packing/${id}`).then(res => setHistory(res.data));
+    axios.get(`${API_BASE_URL}/api/director/packing/${id}`).then(res => setHistory(res.data));
   }, [id]);
 
   useEffect(() => { loadHistory(); }, [loadHistory]);
@@ -18,7 +19,7 @@ const Packing = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-        await axios.post("http://127.0.0.1:5000/api/director/packing/add", { ...form, proposal_id: id });
+        await axios.post(`${API_BASE_URL}/api/director/packing/add`, { ...form, proposal_id: id });
         alert("✅ Packing Data Saved!");
         loadHistory();
     } catch (err) { alert("Error saving data"); }

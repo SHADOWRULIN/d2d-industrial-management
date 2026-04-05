@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const Workers = () => {
   const { id } = useParams(); // Current Proposal ID
@@ -14,7 +15,7 @@ const Workers = () => {
   // Load all Machine Logs associated with THIS proposal ID
   const loadProjectLogs = useCallback(() => {
     setLoading(true);
-    axios.get(`http://127.0.0.1:5000/api/director/machine_logs/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/machine_logs/${id}`)
          .then(res => {
             setProjectLogs(res.data);
             setLoading(false);

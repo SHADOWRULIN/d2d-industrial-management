@@ -1,6 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import API_BASE_URL from "./apiConfig";
 
 const Landing = () => {
   const navigate = useNavigate();

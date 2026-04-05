@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const ManufacturingProcess = () => {
   const { id } = useParams(); 
@@ -24,7 +25,7 @@ const ManufacturingProcess = () => {
   const loadTasks = useCallback(() => {
     console.log("🔄 Fetching tasks for Project ID:", id);
     
-    axios.get(`http://127.0.0.1:5000/api/director/manufacturing/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/manufacturing/${id}`)
          .then(res => {
              if (Array.isArray(res.data)) {
                  setTasks(res.data);
@@ -35,7 +36,7 @@ const ManufacturingProcess = () => {
 
   useEffect(() => {
     // 🟢 FIX: Fetch Machines from Database using setMachines
-    axios.get("http://127.0.0.1:5000/api/common/machines")
+    axios.get(`${API_BASE_URL}/api/common/machines`)
          .then(res => {
              setMachines(res.data);
              // Set default selected machine if list is not empty
@@ -44,7 +45,7 @@ const ManufacturingProcess = () => {
          .catch(err => console.error(err));
 
     // Fetch Workers
-    axios.get(`http://127.0.0.1:5000/api/director/workers/0`)
+    axios.get(`${API_BASE_URL}/api/director/workers/0`)
          .then(res => setWorkers(res.data))
          .catch(err => console.error(err));
          
@@ -61,7 +62,7 @@ const ManufacturingProcess = () => {
     const payload = { ...form, proposal_id: id };
 
     try {
-        const res = await axios.post("http://127.0.0.1:5000/api/director/manufacturing/add", payload);
+        const res = await axios.post(`${API_BASE_URL}/api/director/manufacturing/add`, payload);
         if (res.status === 200 || res.status === 201) {
             alert("✅ Task Assigned Successfully!");
             setForm({ ...form, work: "" }); 

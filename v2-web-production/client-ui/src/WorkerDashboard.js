@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const WorkerDashboard = () => {
   const navigate = useNavigate();
@@ -38,15 +39,15 @@ const WorkerDashboard = () => {
     if (!workerId) return;
     try {
         // A. Dropdowns
-        const projRes = await axios.get("http://127.0.0.1:5000/api/worker/projects");
+        const projRes = await axios.get(`${API_BASE_URL}/api/worker/projects`);
         setProjects(projRes.data);
 
-        const machRes = await axios.get("http://127.0.0.1:5000/api/common/machines");
+        const machRes = await axios.get(`${API_BASE_URL}/api/common/machines`);
         setMachines(machRes.data);
 
         // B. Fetch All Records (Logs + Assignments mixed)
         // We use the one endpoint we KNOW works: /api/worker/tasks/
-        const allRecordsRes = await axios.get(`http://127.0.0.1:5000/api/worker/tasks/${workerId}`);
+        const allRecordsRes = await axios.get(`${API_BASE_URL}/api/worker/tasks/${workerId}`);
         const allData = allRecordsRes.data;
 
         // 🟢 FILTER LOGIC: SPLIT THE DATA HERE
@@ -113,14 +114,14 @@ const WorkerDashboard = () => {
     e.preventDefault();
     if (!form.proposal_id || !form.work_description) return alert("Fill all fields");
     try {
-      const res = await axios.post("http://127.0.0.1:5000/api/worker/log_machine", { ...form, worker_id: workerId, worker_name: workerName });
+      const res = await axios.post(`${API_BASE_URL}/api/worker/log_machine`, { ...form, worker_id: workerId, worker_name: workerName });
       if(res.data.success) { alert("🚀 Punch-In Successful!"); fetchData(); }
     } catch (err) { alert("Error starting session"); }
   };
 
   const handleEndWork = async () => {
     try {
-        const res = await axios.post("http://127.0.0.1:5000/api/worker/end_session", { worker_id: workerId });
+        const res = await axios.post(`${API_BASE_URL}/api/worker/end_session`, { worker_id: workerId });
         if(res.data.success) { alert(`✅ Ended! Hours: ${res.data.hours}`); setForm({...form, work_description: ""}); fetchData(); }
     } catch (err) { alert("Error ending session"); }
   };
@@ -128,7 +129,7 @@ const WorkerDashboard = () => {
   const handleTaskComplete = async (taskId) => {
     if(!window.confirm("Mark this task as completed?")) return;
     try {
-        await axios.put(`http://127.0.0.1:5000/api/worker/update-task/${taskId}`, { status: "Completed" });
+        await axios.put(`${API_BASE_URL}/api/worker/update-task/${taskId}`, { status: "Completed" });
         alert("Task Updated!");
         fetchData(); // Refresh list
     } catch (err) { alert("Update failed"); }

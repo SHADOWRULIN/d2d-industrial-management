@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const FinalDelivery = () => {
   const { id } = useParams();
@@ -10,7 +11,7 @@ const FinalDelivery = () => {
   const [address, setAddress] = useState("");
 
   const loadHistory = useCallback(() => {
-    axios.get(`http://127.0.0.1:5000/api/director/delivery/${id}`)
+    axios.get(`${API_BASE_URL}/api/director/delivery/${id}`)
          .then(res => setHistory(res.data));
   }, [id]);
 
@@ -19,7 +20,7 @@ const FinalDelivery = () => {
   const handleSave = async (e) => {
     e.preventDefault();
     try {
-        await axios.post("http://127.0.0.1:5000/api/director/delivery/add", { proposal_id: id, address: address });
+        await axios.post(`${API_BASE_URL}/api/director/delivery/add`, { proposal_id: id, address: address });
         alert("✅ Marked as Delivered!");
         setAddress(""); // Clear input
         loadHistory();

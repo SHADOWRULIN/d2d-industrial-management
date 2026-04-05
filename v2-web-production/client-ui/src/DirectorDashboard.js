@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
 
 const DirectorDashboard = () => {
   const navigate = useNavigate();
@@ -38,13 +39,13 @@ const DirectorDashboard = () => {
 
   const fetchData = async () => {
     try {
-        const resProp = await axios.get("http://127.0.0.1:5000/api/proposals");
+        const resProp = await axios.get(`${API_BASE_URL}/api/proposals`);
         setProposals(resProp.data.sort((a, b) => b.proposal_id - a.proposal_id));
 
-        const resWork = await axios.get("http://127.0.0.1:5000/api/director/workers/0");
+        const resWork = await axios.get(`${API_BASE_URL}/api/director/workers/0`);
         setWorkers(resWork.data);
 
-        const resMach = await axios.get("http://127.0.0.1:5000/api/common/machines");
+        const resMach = await axios.get(`${API_BASE_URL}/api/common/machines`);
         setMachines(resMach.data);
     } catch (err) { console.error("Error fetching data", err); }
   };
@@ -58,7 +59,7 @@ const DirectorDashboard = () => {
     }
 
     try {
-      await axios.post("http://127.0.0.1:5000/api/proposals/update_status", { proposal_id: id, status: status, reason: reason });
+      await axios.post(`${API_BASE_URL}/api/proposals/update_status`, { proposal_id: id, status: status, reason: reason });
       setRefresh(!refresh);
     } catch (error) { alert("Error updating status"); }
   };
@@ -67,7 +68,7 @@ const DirectorDashboard = () => {
     setSelectedWorkerId(workerId);
     if (!workerId) { setWorkerLogs([]); return; }
     try {
-        const res = await axios.get(`http://127.0.0.1:5000/api/worker/tasks/${workerId}`);
+        const res = await axios.get(`${API_BASE_URL}/api/worker/tasks/${workerId}`);
         setWorkerLogs(res.data);
     } catch (err) { console.error("Error fetching logs"); }
   };
@@ -75,7 +76,7 @@ const DirectorDashboard = () => {
   const handleAddWorker = async (e) => {
     e.preventDefault();
     try {
-        await axios.post("http://127.0.0.1:5000/api/director/workers/add", workerForm);
+        await axios.post(`${API_BASE_URL}/api/director/workers/add`, workerForm);
         alert("✅ Worker Added!");
         setWorkerForm({ worker_name: "", worker_job: "" });
         setRefresh(!refresh);
@@ -85,7 +86,7 @@ const DirectorDashboard = () => {
   const handleDeleteWorker = async (workerId) => {
     if(!window.confirm("Remove this worker?")) return;
     try {
-        await axios.delete(`http://127.0.0.1:5000/api/director/workers/delete/${workerId}`);
+        await axios.delete(`${API_BASE_URL}/api/director/workers/delete/${workerId}`);
         setRefresh(!refresh);
     } catch (err) { alert("Delete failed."); }
   };
@@ -94,7 +95,7 @@ const DirectorDashboard = () => {
     e.preventDefault();
     if(!newMachine) return;
     try {
-        await axios.post("http://127.0.0.1:5000/api/director/machines/add", { machine_name: newMachine });
+        await axios.post(`${API_BASE_URL}/api/director/machines/add`, { machine_name: newMachine });
         alert("⚙️ Machine Added!");
         setNewMachine("");
         setRefresh(!refresh);
@@ -105,7 +106,7 @@ const DirectorDashboard = () => {
       setSelectedMachine(machineName);
       if(!machineName) { setMachineUsageLogs([]); return; }
       try {
-          const res = await axios.post("http://127.0.0.1:5000/api/director/machine_usage_logs", { machine_name: machineName });
+          const res = await axios.post(`${API_BASE_URL}/api/director/machine_usage_logs`, { machine_name: machineName });
           setMachineUsageLogs(res.data);
       } catch(err) { console.error(err); }
   };
@@ -323,7 +324,7 @@ const DirectorDashboard = () => {
                     {selectedProposal.client_image && (
                         <div style={styles.modalField}>
                             <label style={styles.label}>Reference Image</label>
-                            <img src={`http://127.0.0.1:5000/${selectedProposal.client_image}`} style={styles.refImage} alt="ref" />
+                            <img src={`${API_BASE_URL}/${selectedProposal.client_image}`} style={styles.refImage} alt="ref" />
                         </div>
                     )}
 

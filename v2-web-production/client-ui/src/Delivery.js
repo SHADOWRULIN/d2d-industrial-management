@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
+import API_BASE_URL from "./apiConfig";
+
 
 const Delivery = () => {
   const { id } = useParams();
@@ -28,11 +30,11 @@ const Delivery = () => {
   const fetchData = async () => {
     try {
         // 1. Fetch Workers for dropdown
-        const workerRes = await axios.get("http://127.0.0.1:5000/api/director/workers/0");
+        const workerRes = await axios.get(`${API_BASE_URL}/api/director/workers/0`);
         setWorkers(workerRes.data);
 
         // 2. Fetch Current Pipeline Status
-        const statusRes = await axios.get(`http://127.0.0.1:5000/api/director/logistics/${id}`);
+        const statusRes = await axios.get(`${API_BASE_URL}/api/director/logistics/${id}`);
         if(statusRes.data) {
             setPipeline(statusRes.data);
         }
@@ -45,7 +47,7 @@ const Delivery = () => {
   const handlePackingSubmit = async (e) => {
     e.preventDefault();
     try {
-        await axios.post("http://127.0.0.1:5000/api/director/logistics/pack", {
+        await axios.post(`${API_BASE_URL}/api/director/logistics/pack`, {
             proposal_id: id,
             packer_id: pipeline.packer_id,
             packing_date: pipeline.packing_date
@@ -60,7 +62,7 @@ const Delivery = () => {
     if(!window.confirm("Confirm Delivery? This will mark the Project as COMPLETED.")) return;
 
     try {
-        await axios.post("http://127.0.0.1:5000/api/director/logistics/complete", {
+        await axios.post(`${API_BASE_URL}/api/director/logistics/complete`, {
             proposal_id: id,
             address: pipeline.address,
             tracking_id: pipeline.tracking_id
