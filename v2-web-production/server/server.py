@@ -6,7 +6,10 @@ import datetime
 from database.db_connection import connect_db
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=[
+    "http://localhost:3000", 
+    "https://your-vercel-link-here.vercel.app"
+])
 
 # ==========================================
 # 1. AUTHENTICATION ROUTES
@@ -596,5 +599,5 @@ def complete_logistics_pipeline():
     finally: conn.close()
 
 if __name__ == '__main__':
-    print("🚀 Master Server Running on Port 5000")
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=True)
