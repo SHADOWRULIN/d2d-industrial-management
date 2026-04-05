@@ -8,7 +8,7 @@ from database.db_connection import connect_db
 app = Flask(__name__)
 CORS(app, origins=[
     "http://localhost:3000", 
-    "https://your-vercel-link-here.vercel.app"
+    "https://d2d-industrial-management.vercel.app"
 ])
 
 # ==========================================
