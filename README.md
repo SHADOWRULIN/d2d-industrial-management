@@ -6,6 +6,10 @@ Developed by **Fahaz Khan**.
 
 -----
 
+## 🔗 Live Demo
+* **Frontend (Vercel):** [https://d2d-industrial-management.vercel.app/](https://d2d-industrial-management.vercel.app/)
+  
+-----
 ## 🎥 Demo & Preview
 
 ### ▶️ Full Video Walkthrough
