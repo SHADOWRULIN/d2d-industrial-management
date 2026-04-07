@@ -7,9 +7,9 @@ import API_BASE_URL from "./apiConfig";
 const ManufacturingProcess = () => {
   const { id } = useParams(); 
   const navigate = useNavigate();
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
-  // 1. Initial State
-  const [machines, setMachines] = useState([]); // Empty initially
+  const [machines, setMachines] = useState([]); 
   const [tasks, setTasks] = useState([]);
   const [workers, setWorkers] = useState([]);
   
@@ -22,9 +22,13 @@ const ManufacturingProcess = () => {
       status: "Pending" 
   });
 
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const loadTasks = useCallback(() => {
-    console.log("🔄 Fetching tasks for Project ID:", id);
-    
     axios.get(`${API_BASE_URL}/api/director/manufacturing/${id}`)
          .then(res => {
              if (Array.isArray(res.data)) {
@@ -35,22 +39,19 @@ const ManufacturingProcess = () => {
   }, [id]);
 
   useEffect(() => {
-    // 🟢 FIX: Fetch Machines from Database using setMachines
     axios.get(`${API_BASE_URL}/api/common/machines`)
          .then(res => {
              setMachines(res.data);
-             // Set default selected machine if list is not empty
              if(res.data.length > 0) setForm(f => ({...f, machine: res.data[0]}));
          })
          .catch(err => console.error(err));
 
-    // Fetch Workers
     axios.get(`${API_BASE_URL}/api/director/workers/0`)
          .then(res => setWorkers(res.data))
          .catch(err => console.error(err));
          
     loadTasks();
-  }, [id, loadTasks]); // setMachines is stable, doesn't need to be in deps
+  }, [id, loadTasks]);
 
   const handleSave = async (e) => {
     e.preventDefault();
@@ -73,8 +74,10 @@ const ManufacturingProcess = () => {
     }
   };
 
+  const isMobile = windowWidth < 768;
+
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? "20px 15px" : "40px" }}>
       <style>
         {`
           option { background-color: #1e1e1e; color: white; padding: 10px; }
@@ -83,14 +86,14 @@ const ManufacturingProcess = () => {
       </style>
 
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} style={styles.wrapper}>
-        <div style={styles.header}>
+        <div style={{ ...styles.header, flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "flex-start" : "center", gap: isMobile ? "15px" : "20px" }}>
           <button onClick={() => navigate(`/director/project/${id}/manufacturing`)} style={styles.backBtn}>← Back</button>
-          <h2 style={styles.title}>Manufacturing Schedule</h2>
+          <h2 style={{ ...styles.title, fontSize: isMobile ? "20px" : "24px" }}>Manufacturing Schedule</h2>
         </div>
 
-        <div style={styles.split}>
-          <div style={styles.card}>
-            <h3 style={{color: '#E040FB', borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0}}>Assign Task</h3>
+        <div style={{ ...styles.split, flexDirection: isMobile ? "column" : "row" }}>
+          <div style={{ ...styles.card, minWidth: isMobile ? "100%" : "350px" }}>
+            <h3 style={{color: '#E040FB', borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0, fontSize: '18px'}}>Assign Task</h3>
             <form onSubmit={handleSave} style={styles.form}>
               
               <div style={styles.inputGroup}>
@@ -124,7 +127,7 @@ const ManufacturingProcess = () => {
                   </select>
               </div>
 
-              <div style={styles.dateRow}>
+              <div style={{ ...styles.dateRow, flexDirection: isMobile ? "column" : "row", gap: isMobile ? "15px" : "20px" }}>
                 <div style={styles.dateCol}>
                     <label style={styles.label}>Start Date</label>
                     <input type="date" style={styles.input} onChange={e => setForm({...form, start_date: e.target.value})} required />
@@ -139,10 +142,10 @@ const ManufacturingProcess = () => {
             </form>
           </div>
 
-          <div style={{...styles.card, flex: 2}}>
-            <h3 style={{color: '#fff', borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0}}>Scheduled Tasks</h3>
+          <div style={{...styles.card, flex: 2, minWidth: isMobile ? "100%" : "350px"}}>
+            <h3 style={{color: '#fff', borderBottom: '1px solid #333', paddingBottom: '10px', marginTop: 0, fontSize: '18px'}}>Scheduled Tasks</h3>
             <div style={{overflowX: 'auto'}}>
-                <table style={styles.table}>
+                <table style={{ ...styles.table, minWidth: isMobile ? "600px" : "100%" }}>
                 <thead>
                     <tr style={styles.headerRow}>
                         <th>Machine</th>
@@ -189,25 +192,25 @@ const ManufacturingProcess = () => {
 };
 
 const styles = {
-  container: { minHeight: "100vh", background: "#121212", fontFamily: "'Segoe UI', sans-serif", padding: "40px" },
+  container: { minHeight: "100vh", background: "#121212", fontFamily: "'Segoe UI', sans-serif", overflowX: "hidden" },
   wrapper: { maxWidth: "1200px", margin: "0 auto" },
-  header: { display: "flex", alignItems: "center", gap: "20px", marginBottom: "30px", borderBottom: '1px solid #333', paddingBottom: '15px' },
-  backBtn: { background: "rgba(255,255,255,0.1)", border: "1px solid #444", color: "white", padding: "8px 15px", borderRadius: "20px", cursor: "pointer" },
+  header: { display: "flex", marginBottom: "30px", borderBottom: '1px solid #333', paddingBottom: '15px' },
+  backBtn: { background: "rgba(255,255,255,0.1)", border: "1px solid #444", color: "white", padding: "8px 15px", borderRadius: "20px", cursor: "pointer", fontSize: "14px" },
   title: { color: "white", margin: 0 },
   split: { display: "flex", gap: "30px", flexWrap: "wrap", alignItems: 'flex-start' },
-  card: { background: "rgba(255, 255, 255, 0.05)", padding: "30px", borderRadius: "15px", flex: 1, minWidth: "350px", border: "1px solid #333" },
+  card: { background: "rgba(255, 255, 255, 0.05)", padding: "25px", borderRadius: "15px", flex: 1, border: "1px solid #333", boxSizing: "border-box" },
   form: { display: "flex", flexDirection: "column", gap: "20px" }, 
   inputGroup: { display: "flex", flexDirection: "column", width: "100%" }, 
-  label: { fontWeight: "bold", fontSize: "13px", color: "#aaa", marginBottom: "8px", display: "block" },
-  input: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #444", background: "#222", color: "white", outline: "none", boxSizing: "border-box" },
-  dateRow: { display: 'flex', gap: '20px', width: '100%' },
+  label: { fontWeight: "bold", fontSize: "12px", color: "#777", marginBottom: "8px", display: "block", textTransform: "uppercase" },
+  input: { width: "100%", padding: "12px", borderRadius: "8px", border: "1px solid #444", background: "#222", color: "white", outline: "none", boxSizing: "border-box", fontSize: "14px" },
+  dateRow: { display: 'flex', width: '100%' },
   dateCol: { flex: 1, display: 'flex', flexDirection: 'column' },
-  btn: { width: "100%", padding: "12px", background: "linear-gradient(90deg, #E040FB, #7C4DFF)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", marginTop: '10px', fontWeight: 'bold' },
-  table: { width: "100%", borderCollapse: "collapse", fontSize: "14px", color: "white" },
+  btn: { width: "100%", padding: "14px", background: "linear-gradient(90deg, #E040FB, #7C4DFF)", color: "white", border: "none", borderRadius: "8px", cursor: "pointer", marginTop: '10px', fontWeight: 'bold', fontSize: "15px" },
+  table: { width: "100%", borderCollapse: "collapse", fontSize: "13px", color: "white" },
   headerRow: { background: "rgba(255,255,255,0.1)", textAlign: "left" },
   row: { borderBottom: "1px solid #333" },
   td: { padding: "12px" },
-  badge: { padding: "5px 10px", background: "rgba(255,255,255,0.1)", borderRadius: "10px", fontSize: "11px", fontWeight: "bold", border: "1px solid" }
+  badge: { padding: "5px 10px", background: "rgba(255,255,255,0.05)", borderRadius: "6px", fontSize: "11px", fontWeight: "bold", border: "1px solid" }
 };
 
 export default ManufacturingProcess;

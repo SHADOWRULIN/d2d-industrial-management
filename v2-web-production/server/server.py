@@ -535,6 +535,17 @@ def get_machine_logs(proposal_id):
         return jsonify([dict(row) for row in cursor.fetchall()])
     finally: conn.close()
 
+@app.route('/api/client/feedback', methods=['POST'])
+def submit_feedback():
+    data = request.json
+    conn = connect_db(); cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO feedback (proposal_id, client_rating, comments) VALUES (?, ?, ?)", 
+                       (data['proposal_id'], data['rating'], data['comments']))
+        conn.commit()
+        return jsonify({"success": True})
+    finally: conn.close()
+
 @app.route('/api/director/feedback/<int:proposal_id>', methods=['GET'])
 def get_proposal_feedback(proposal_id):
     conn = connect_db(); cursor = conn.cursor()

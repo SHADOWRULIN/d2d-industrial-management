@@ -24,7 +24,7 @@ const Dashboard = () => {
           poster="/poster1.jpg" 
           style={styles.videoBackground}
         >
-          <source src="/background1.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/dzdyhltkt/video/upload/f_auto,q_auto/v1775587563/background1_flsxzl.mp4" type="video/mp4" />
         </video>
         <div style={styles.overlay}></div>
       </div>

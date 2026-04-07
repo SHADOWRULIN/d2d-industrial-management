@@ -5,14 +5,20 @@ import { useNavigate, useParams } from "react-router-dom";
 import API_BASE_URL from "./apiConfig";
 
 const Workers = () => {
-  const { id } = useParams(); // Current Proposal ID
+  const { id } = useParams(); 
   const navigate = useNavigate();
   
   const [projectLogs, setProjectLogs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [filterWorker, setFilterWorker] = useState(""); // For searching within project logs
+  const [filterWorker, setFilterWorker] = useState(""); 
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
-  // Load all Machine Logs associated with THIS proposal ID
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const loadProjectLogs = useCallback(() => {
     setLoading(true);
     axios.get(`${API_BASE_URL}/api/director/machine_logs/${id}`)
@@ -30,29 +36,34 @@ const Workers = () => {
     loadProjectLogs();
   }, [loadProjectLogs]);
 
-  // Filter logs based on search input
   const displayedLogs = projectLogs.filter(log => 
     log.worker_name.toLowerCase().includes(filterWorker.toLowerCase())
   );
 
+  const isMobile = windowWidth < 768;
+
+  const dynamicHeader = {
+    ...styles.header,
+    flexDirection: isMobile ? "column" : "row",
+    alignItems: isMobile ? "flex-start" : "center",
+    gap: isMobile ? "15px" : "20px"
+  };
+
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? "20px 15px" : "40px" }}>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} style={styles.wrapper}>
         
-        {/* Header */}
-        <div style={styles.header}>
+        <div style={dynamicHeader}>
           <button onClick={() => navigate(`/director/project/${id}/manufacturing`)} style={styles.backBtn}>← Back</button>
-          <h2 style={styles.title}>Project Utilization Audit | <span style={{color: '#FFAB40'}}>Proposal #{id}</span></h2>
+          <h2 style={{ ...styles.title, fontSize: isMobile ? "20px" : "24px" }}>Project Audit | <span style={{color: '#FFAB40'}}>#{id}</span></h2>
         </div>
 
-        {/* Audit Dashboard Card */}
-        <div style={styles.fullCard}>
-            <div style={styles.cardHeader}>
-                <h3 style={styles.cardTitle}>Machine Usage History</h3>
-                {/* Search box to find a specific worker's contribution to this project */}
+        <div style={{ ...styles.fullCard, padding: isMobile ? "20px" : "30px" }}>
+            <div style={{ ...styles.cardHeader, flexDirection: isMobile ? "column" : "row", alignItems: isMobile ? "stretch" : "center" }}>
+                <h3 style={{ ...styles.cardTitle, fontSize: isMobile ? "18px" : "20px" }}>Machine Usage History</h3>
                 <input 
-                    placeholder="Search worker name..." 
-                    style={styles.searchInput} 
+                    placeholder="Search worker..." 
+                    style={{ ...styles.searchInput, width: isMobile ? "100%" : "250px" }} 
                     value={filterWorker}
                     onChange={(e) => setFilterWorker(e.target.value)}
                 />
@@ -82,8 +93,8 @@ const Workers = () => {
                 </div>
             ) : (
                 <div style={styles.emptyState}>
-                    <p>No machine utilization has been logged for this project yet.</p>
-                    <small style={{color: '#555'}}>Logs submitted by workers via the Worker Portal will appear here.</small>
+                    <p>No machine utilization logged yet.</p>
+                    <small style={{color: '#555'}}>Logs from the Worker Portal will appear here.</small>
                 </div>
             )}
         </div>
@@ -93,27 +104,26 @@ const Workers = () => {
 };
 
 const styles = {
-  container: { minHeight: "100vh", background: "#0f0f0f", fontFamily: "'Segoe UI', sans-serif", padding: "40px" },
+  container: { minHeight: "100vh", background: "#0f0f0f", fontFamily: "'Segoe UI', sans-serif", overflowX: "hidden" },
   wrapper: { maxWidth: "1200px", margin: "0 auto" },
-  header: { display: "flex", alignItems: "center", gap: "20px", marginBottom: "30px", borderBottom: '1px solid #333', paddingBottom: '20px' },
-  backBtn: { background: "rgba(255,255,255,0.05)", border: "1px solid #444", color: "white", padding: "10px 20px", borderRadius: "20px", cursor: "pointer" },
-  title: { color: "white", margin: 0 },
+  header: { display: "flex", marginBottom: "30px", borderBottom: '1px solid #333', paddingBottom: '20px' },
+  backBtn: { background: "rgba(255,255,255,0.05)", border: "1px solid #444", color: "white", padding: "8px 15px", borderRadius: "20px", cursor: "pointer", fontSize: "14px" },
+  title: { color: "white", margin: 0, fontWeight: "600" },
 
-  fullCard: { background: "#1a1a1a", padding: "30px", borderRadius: "15px", border: "1px solid #333", boxShadow: "0 10px 30px rgba(0,0,0,0.5)" },
-  cardHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px', flexWrap: 'wrap', gap: '15px' },
+  fullCard: { background: "#1a1a1a", borderRadius: "15px", border: "1px solid #333", boxShadow: "0 10px 30px rgba(0,0,0,0.5)", boxSizing: "border-box" },
+  cardHeader: { display: 'flex', justifyContent: 'space-between', marginBottom: '30px', gap: '15px' },
   cardTitle: { color: '#FFAB40', margin: 0 },
   
-  searchInput: { padding: "10px 15px", borderRadius: "8px", border: "1px solid #444", background: "#2a2a2a", color: "white", outline: "none", width: '250px' },
+  searchInput: { padding: "10px 15px", borderRadius: "8px", border: "1px solid #444", background: "#2a2a2a", color: "white", outline: "none", boxSizing: "border-box" },
   
   statusText: { color: '#888', textAlign: 'center', marginTop: '40px' },
   
-  // Log Grid
-  logGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '20px' },
-  logItem: { background: '#252525', padding: '20px', borderRadius: '12px', borderLeft: '5px solid #FFAB40', display: 'flex', flexDirection: 'column', gap: '10px' },
+  logGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '20px' },
+  logItem: { background: '#252525', padding: '20px', borderRadius: '12px', borderLeft: '5px solid #FFAB40', display: 'flex', flexDirection: 'column', gap: '10px', boxSizing: "border-box" },
   logHeader: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' },
-  workerBadge: { background: '#333', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold' },
+  workerBadge: { background: '#333', color: '#fff', padding: '4px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' },
   dateTag: { color: '#666', fontSize: '11px' },
-  machineTitle: { color: '#FFAB40', margin: '5px 0' },
+  machineTitle: { color: '#FFAB40', margin: '5px 0', fontSize: '16px' },
   description: { fontSize: '13px', color: '#ccc', fontStyle: 'italic', lineHeight: '1.5', flex: 1 },
   logFooter: { borderTop: '1px solid #333', paddingTop: '10px', marginTop: '5px' },
   hourTag: { color: '#69F0AE', fontWeight: 'bold', fontSize: '13px' },

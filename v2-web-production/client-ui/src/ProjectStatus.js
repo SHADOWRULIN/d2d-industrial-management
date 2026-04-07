@@ -7,9 +7,16 @@ import API_BASE_URL from "./apiConfig";
 const ProjectStatus = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
   
   const [formData, setFormData] = useState({ workflow_status: "Design", start_date: "", end_date: "" });
   const [files, setFiles] = useState({ design_pdf: null, detail_pdf: null });
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   useEffect(() => {
     if (!localStorage.getItem("director_auth")) navigate("/director");
@@ -43,15 +50,21 @@ const ProjectStatus = () => {
     }
   };
 
+  const isMobile = windowWidth < 768;
+
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? "20px 10px" : "40px" }}>
       <motion.div 
         initial={{ y: 20, opacity: 0 }} 
         animate={{ y: 0, opacity: 1 }} 
-        style={styles.card}
+        style={{
+            ...styles.card,
+            width: isMobile ? "100%" : "600px",
+            padding: isMobile ? "25px" : "40px"
+        }}
       >
-        <button onClick={() => navigate(`/director/project/${id}`)} style={styles.backBtn}>← Back to Menu</button>
-        <h2 style={styles.title}>Update Status | <span style={{color:'#64FFDA'}}>Project #{id}</span></h2>
+        <button onClick={() => navigate(`/director/project/${id}`)} style={styles.backBtn}>← Back</button>
+        <h2 style={{ ...styles.title, fontSize: isMobile ? "20px" : "24px" }}>Update Status | <span style={{color:'#64FFDA'}}>#{id}</span></h2>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <label style={styles.label}>Current Workflow Stage</label>
@@ -68,7 +81,7 @@ const ProjectStatus = () => {
             <option>Completed</option>
           </select>
 
-          <div style={styles.row}>
+          <div style={{ ...styles.row, flexDirection: isMobile ? "column" : "row", gap: isMobile ? "15px" : "20px" }}>
             <div style={{flex: 1}}>
                 <label style={styles.label}>Start Date: </label>
                 <input type="date" style={styles.input} value={formData.start_date} onChange={(e) => setFormData({...formData, start_date: e.target.value})} />
@@ -81,18 +94,18 @@ const ProjectStatus = () => {
 
           <label style={styles.label}>Upload Design PDF</label>
           <div style={styles.fileBox}>
-            <input type="file" accept=".pdf" onChange={(e) => setFiles({...files, design_pdf: e.target.files[0]})} style={{color: 'white'}} />
+            <input type="file" accept=".pdf" onChange={(e) => setFiles({...files, design_pdf: e.target.files[0]})} style={{color: 'white', width: '100%'}} />
           </div>
           
           <label style={styles.label}>Upload Detail PDF</label>
           <div style={styles.fileBox}>
-            <input type="file" accept=".pdf" onChange={(e) => setFiles({...files, detail_pdf: e.target.files[0]})} style={{color: 'white'}} />
+            <input type="file" accept=".pdf" onChange={(e) => setFiles({...files, detail_pdf: e.target.files[0]})} style={{color: 'white', width: '100%'}} />
           </div>
 
           <motion.button 
             whileHover={{ scale: 1.02 }} 
             whileTap={{ scale: 0.98 }} 
-            style={styles.saveBtn}
+            style={{ ...styles.saveBtn, fontSize: isMobile ? "14px" : "16px" }}
           >
             Save Changes 💾
           </motion.button>
@@ -102,82 +115,17 @@ const ProjectStatus = () => {
   );
 };
 
-// --- PREMIUM DARK STYLES ---
 const styles = {
-  container: { 
-    minHeight: "100vh", 
-    background: "#121212", 
-    display: "flex", 
-    justifyContent: "center", 
-    alignItems: "center", 
-    fontFamily: "'Segoe UI', sans-serif" 
-  },
-  
-  card: { 
-    background: "rgba(255, 255, 255, 0.05)", 
-    backdropFilter: "blur(10px)",
-    padding: "40px", 
-    borderRadius: "20px", 
-    width: "600px", 
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    boxShadow: "0 20px 50px rgba(0,0,0,0.5)",
-    color: "white"
-  },
-  
-  backBtn: { 
-    background: "transparent", 
-    border: "1px solid rgba(255,255,255,0.3)", 
-    borderRadius: "20px",
-    padding: "8px 15px",
-    cursor: "pointer", 
-    fontSize: "14px", 
-    marginBottom: "20px", 
-    color: "#ccc",
-    transition: "all 0.3s"
-  },
-  
-  title: { 
-    margin: "0 0 25px 0", 
-    fontSize: "24px", 
-    borderBottom: "1px solid rgba(255,255,255,0.1)", 
-    paddingBottom: "15px" 
-  },
-  
+  container: { minHeight: "100vh", background: "#121212", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "'Segoe UI', sans-serif", boxSizing: "border-box", overflowX: "hidden" },
+  card: { background: "rgba(255, 255, 255, 0.05)", backdropFilter: "blur(10px)", borderRadius: "20px", border: "1px solid rgba(255, 255, 255, 0.1)", boxShadow: "0 20px 50px rgba(0,0,0,0.5)", color: "white", boxSizing: "border-box" },
+  backBtn: { background: "transparent", border: "1px solid rgba(255,255,255,0.3)", borderRadius: "20px", padding: "8px 15px", cursor: "pointer", fontSize: "14px", marginBottom: "20px", color: "#ccc" },
+  title: { margin: "0 0 25px 0", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "15px" },
   form: { display: "flex", flexDirection: "column", gap: "20px" },
-  
-  label: { fontWeight: "bold", fontSize: "14px", color: "#aaa", marginBottom: "-10px" },
-  
-  input: { 
-    padding: "12px", 
-    borderRadius: "8px", 
-    border: "1px solid #444", 
-    background: "#222", 
-    color: "white",
-    fontSize: "16px",
-    outline: "none"
-  },
-  
-  row: { display: "flex", gap: "20px" },
-  
-  fileBox: { 
-    padding: "15px", 
-    background: "rgba(0,0,0,0.2)", 
-    border: "1px dashed rgba(255,255,255,0.3)",
-    borderRadius: "8px"
-  },
-  
-  saveBtn: { 
-    padding: "15px", 
-    background: "linear-gradient(90deg, #00C853, #69F0AE)", 
-    color: "black", 
-    border: "none", 
-    borderRadius: "8px", 
-    fontSize: "16px", 
-    fontWeight: "bold", 
-    cursor: "pointer", 
-    marginTop: "10px",
-    boxShadow: "0 5px 15px rgba(0, 200, 83, 0.3)"
-  }
+  label: { fontWeight: "bold", fontSize: "13px", color: "#aaa", marginBottom: "-10px", textTransform: "uppercase" },
+  input: { padding: "12px", borderRadius: "8px", border: "1px solid #444", background: "#222", color: "white", fontSize: "15px", outline: "none", width: "100%", boxSizing: "border-box" },
+  row: { display: "flex" },
+  fileBox: { padding: "15px", background: "rgba(0,0,0,0.2)", border: "1px dashed rgba(255,255,255,0.3)", borderRadius: "8px", boxSizing: "border-box" },
+  saveBtn: { padding: "15px", background: "linear-gradient(90deg, #00C853, #69F0AE)", color: "black", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", marginTop: "10px", boxShadow: "0 5px 15px rgba(0, 200, 83, 0.3)" }
 };
 
 export default ProjectStatus;

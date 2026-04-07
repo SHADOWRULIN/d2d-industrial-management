@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
@@ -11,6 +11,13 @@ const SubmitProposal = () => {
   const [formData, setFormData] = useState({ project_name: "", description: "", service: "Product Design" });
   const [file, setFile] = useState(null);
   const [message, setMessage] = useState("");
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -46,8 +53,10 @@ const SubmitProposal = () => {
     }
   };
 
+  const isMobile = windowWidth < 768;
+
   return (
-    <div style={styles.container}>
+    <div style={{ ...styles.container, padding: isMobile ? "20px 15px" : "40px" }}>
       <video 
           autoPlay 
           loop 
@@ -56,24 +65,28 @@ const SubmitProposal = () => {
           poster="/poster1.jpg" 
           style={styles.videoBackground}
         >
-          <source src="/background1.mp4" type="video/mp4" />
+          <source src="https://res.cloudinary.com/dzdyhltkt/video/upload/f_auto,q_auto/v1775587563/background1_flsxzl.mp4" type="video/mp4" />
         </video>
       <div style={styles.overlay}></div>
 
       <motion.div 
         initial={{ y: 50, opacity: 0 }} 
         animate={{ y: 0, opacity: 1 }} 
-        style={styles.card}
+        style={{
+          ...styles.card,
+          padding: isMobile ? "25px 20px" : "40px",
+          maxWidth: isMobile ? "100%" : "600px"
+        }}
       >
         <button onClick={() => navigate("/dashboard")} style={styles.backBtn}>← Back</button>
-        <h2 style={styles.title}>New Project Proposal</h2>
+        <h2 style={{ ...styles.title, fontSize: isMobile ? "20px" : "24px" }}>New Project Proposal</h2>
         
         <form onSubmit={handleSubmit} style={styles.form}>
           <label style={styles.label}>Project Name</label>
           <input type="text" name="project_name" onChange={handleChange} style={styles.input} required placeholder="e.g. Smart Drone"/>
 
           <label style={styles.label}>Description</label>
-          <textarea name="description" onChange={handleChange} style={{...styles.input, height: '100px', resize: 'none'}} required placeholder="Describe your idea..."/>
+          <textarea name="description" onChange={handleChange} style={{...styles.input, height: isMobile ? '80px' : '100px', resize: 'none'}} required placeholder="Describe your idea..."/>
 
           <label style={styles.label}>Service Needed</label>
           <select name="service" onChange={handleChange} style={styles.input}>
@@ -84,37 +97,37 @@ const SubmitProposal = () => {
 
           <label style={styles.label}>Reference Image (Optional)</label>
           <div style={styles.fileBox}>
-             <input type="file" onChange={handleFileChange} style={{color: 'white'}} />
+             <input type="file" onChange={handleFileChange} style={{color: 'white', width: '100%', fontSize: isMobile ? '12px' : '14px'}} />
           </div>
 
           <motion.button 
             whileHover={{ scale: 1.02 }} 
             whileTap={{ scale: 0.98 }} 
-            style={styles.submitBtn} 
+            style={{ ...styles.submitBtn, padding: isMobile ? "12px" : "15px" }} 
             type="submit"
           >
             Submit Proposal 🚀
           </motion.button>
         </form>
-        {message && <p style={{color: '#FF5252', marginTop: '10px', textAlign: 'center'}}>{message}</p>}
+        {message && <p style={{color: '#FF5252', marginTop: '10px', textAlign: 'center', fontSize: '14px'}}>{message}</p>}
       </motion.div>
     </div>
   );
 };
 
 const styles = {
-  container: { minHeight: "100vh", position: "relative", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "'Segoe UI', sans-serif" },
+  container: { minHeight: "100vh", position: "relative", display: "flex", justifyContent: "center", alignItems: "center", fontFamily: "'Segoe UI', sans-serif", boxSizing: "border-box", overflowX: "hidden" },
   videoBackground: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", objectFit: "cover", zIndex: -2 },
   overlay: { position: "absolute", top: 0, left: 0, width: "100%", height: "100%", background: "rgba(0,0,0,0.8)", zIndex: -1 },
   
-  card: { background: "rgba(30, 30, 30, 0.6)", backdropFilter: "blur(15px)", padding: "40px", borderRadius: "20px", width: "100%", maxWidth: "600px", border: "1px solid rgba(255,255,255,0.1)", color: "white", boxShadow: "0 20px 50px rgba(0,0,0,0.5)" },
-  backBtn: { background: "transparent", border: "none", cursor: "pointer", color: "#aaa", marginBottom: "20px", fontSize: "14px" },
-  title: { color: "#ffffffff", marginBottom: "30px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "15px", fontSize: '24px' },
+  card: { background: "rgba(30, 30, 30, 0.6)", backdropFilter: "blur(15px)", borderRadius: "20px", border: "1px solid rgba(255,255,255,0.1)", color: "white", boxShadow: "0 20px 50px rgba(0,0,0,0.5)", boxSizing: "border-box" },
+  backBtn: { background: "transparent", border: "none", cursor: "pointer", color: "#aaa", marginBottom: "20px", fontSize: "14px", padding: 0 },
+  title: { color: "#ffffffff", marginBottom: "30px", borderBottom: "1px solid rgba(255,255,255,0.1)", paddingBottom: "15px" },
   form: { display: "flex", flexDirection: "column", gap: "15px" },
   label: { fontWeight: "bold", color: "#FFAB40", marginBottom: "-10px", fontSize: "12px", textTransform: 'uppercase' },
-  input: { padding: "12px", borderRadius: "8px", border: "1px solid #444", background: "#000000ff", color: "white", fontSize: "15px", outline: 'none' },
-  fileBox: { padding: "15px", border: "1px dashed #444", borderRadius: "8px", textAlign: "center", background: "rgba(0,0,0,0.2)" },
-  submitBtn: { padding: "15px", background: "linear-gradient(90deg, #FFAB40, #FF6D00)", color: "black", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: "bold", cursor: "pointer", marginTop: "20px" }
+  input: { padding: "12px", borderRadius: "8px", border: "1px solid #444", background: "#000000ff", color: "white", fontSize: "15px", outline: 'none', width: "100%", boxSizing: "border-box" },
+  fileBox: { padding: "15px", border: "1px dashed #444", borderRadius: "8px", textAlign: "center", background: "rgba(0,0,0,0.2)", boxSizing: "border-box" },
+  submitBtn: { background: "linear-gradient(90deg, #FFAB40, #FF6D00)", color: "black", border: "none", borderRadius: "8px", fontSize: "16px", fontWeight: "bold", cursor: "pointer", marginTop: "20px" }
 };
 
 export default SubmitProposal;

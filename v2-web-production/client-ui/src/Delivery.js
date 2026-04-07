@@ -4,15 +4,15 @@ import { motion } from "framer-motion";
 import { useNavigate, useParams } from "react-router-dom";
 import API_BASE_URL from "./apiConfig";
 
-
 const Delivery = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
 
   // Data State
   const [workers, setWorkers] = useState([]);
   const [pipeline, setPipeline] = useState({
-      stage: "Pending", // Options: Pending, Packed, Delivered
+      stage: "Pending", 
       packer_id: "",
       packing_date: "",
       address: "",
@@ -22,13 +22,17 @@ const Delivery = () => {
   // Loading State
   const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const fetchData = async () => {
     try {
-        // 1. Fetch Workers for dropdown
         const workerRes = await axios.get(`${API_BASE_URL}/api/director/workers/0`);
         setWorkers(workerRes.data);
 
-        // 2. Fetch Current Pipeline Status
         const statusRes = await axios.get(`${API_BASE_URL}/api/director/logistics/${id}`);
         if(statusRes.data) {
             setPipeline(statusRes.data);
@@ -37,12 +41,9 @@ const Delivery = () => {
     finally { setLoading(false); }
   };
 
-    // Load Data
   useEffect(() => {
     fetchData();
   }, [id]);
-
-  // --- HANDLERS ---
 
   const handlePackingSubmit = async (e) => {
     e.preventDefault();
@@ -53,7 +54,7 @@ const Delivery = () => {
             packing_date: pipeline.packing_date
         });
         alert("✅ Items Packed! Moving to Delivery Stage.");
-        fetchData(); // Refresh to update UI
+        fetchData();
     } catch (err) { alert("Error saving packing info"); }
   };
 
@@ -68,36 +69,35 @@ const Delivery = () => {
             tracking_id: pipeline.tracking_id
         });
         alert("🚀 Project Delivered & Closed Successfully!");
-        navigate(`/director/project/${id}`); // Go back to project menu
+        navigate(`/director/project/${id}`);
     } catch (err) { alert("Error completing delivery"); }
   };
+
+  const isMobile = windowWidth < 768;
 
   if(loading) return <div style={{color:'white', padding:'40px'}}>Loading Pipeline...</div>;
 
   return (
     <div style={styles.container}>
       
-      {/* Header */}
-      <nav style={styles.navbar}>
+      <nav style={{...styles.navbar, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '15px' : '0px', padding: isMobile ? '20px' : '20px 40px'}}>
         <button onClick={() => navigate(`/director/project/${id}`)} style={styles.backBtn}>← Back</button>
-        <h1 style={styles.title}>Logistics Pipeline | <span style={{color:'#69F0AE'}}>#{id}</span></h1>
+        <h1 style={{...styles.title, fontSize: isMobile ? '18px' : '20px'}}>Logistics Pipeline | <span style={{color:'#69F0AE'}}>#{id}</span></h1>
       </nav>
 
-      <div style={styles.mainContent}>
+      <div style={{...styles.mainContent, padding: isMobile ? '0 15px' : '0 20px'}}>
         
-        {/* VISUAL PROGRESS BAR */}
-        <div style={styles.progressContainer}>
+        <div style={{...styles.progressContainer, flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? '5px' : '15px'}}>
             <div style={styles.stepActive}>1. Manufacturing (Done)</div>
-            <div style={styles.line}></div>
+            {!isMobile && <div style={styles.line}></div>}
             <div style={pipeline.stage !== 'Pending' ? styles.stepActive : styles.stepInactive}>2. Packed</div>
-            <div style={styles.line}></div>
+            {!isMobile && <div style={styles.line}></div>}
             <div style={pipeline.stage === 'Delivered' ? styles.stepFinished : styles.stepInactive}>3. Delivered</div>
         </div>
 
-        <div style={styles.grid}>
+        <div style={{...styles.grid, flexDirection: isMobile ? 'column' : 'row'}}>
             
-            {/* CARD 1: PACKING (Stage 1) */}
-            <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} style={styles.card}>
+            <motion.div initial={{ x: -20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} style={{...styles.card, width: isMobile ? '100%' : '380px'}}>
                 <div style={styles.cardHeader}>
                     <span style={{fontSize:'30px'}}>📦</span>
                     <h3>Stage 1: Packing</h3>
@@ -135,11 +135,9 @@ const Delivery = () => {
                 )}
             </motion.div>
 
-            {/* ARROW */}
-            <div style={{fontSize:'40px', color:'#333'}}>➜</div>
+            <div style={{fontSize:'40px', color:'#333', transform: isMobile ? 'rotate(90deg)' : 'none'}}>{isMobile ? '➜' : '➜'}</div>
 
-            {/* CARD 2: DELIVERY (Stage 2) */}
-            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} style={{...styles.card, opacity: pipeline.stage === "Pending" ? 0.5 : 1}}>
+            <motion.div initial={{ x: 20, opacity: 0 }} animate={{ x: 0, opacity: 1 }} style={{...styles.card, width: isMobile ? '100%' : '380px', opacity: pipeline.stage === "Pending" ? 0.5 : 1}}>
                 <div style={styles.cardHeader}>
                     <span style={{fontSize:'30px'}}>🚚</span>
                     <h3>Stage 2: Final Handover</h3>
@@ -156,7 +154,7 @@ const Delivery = () => {
                     <form onSubmit={handleFinalDelivery} style={styles.form}>
                         <label style={styles.label}>Destination Address</label>
                         <textarea 
-                            style={styles.input} 
+                            style={{...styles.input, height: '80px', resize: 'none'}} 
                             placeholder="Client delivery address..." 
                             required 
                             value={pipeline.address}
@@ -183,33 +181,33 @@ const Delivery = () => {
 };
 
 const styles = {
-  container: { minHeight: "100vh", background: "#121212", fontFamily: "'Segoe UI', sans-serif", color:'white' },
-  navbar: { padding: "20px 40px", display: "flex", justifyContent: "space-between", background: "#1a1a1a", borderBottom: "1px solid #333" },
+  container: { minHeight: "100vh", background: "#121212", fontFamily: "'Segoe UI', sans-serif", color:'white', overflowX: 'hidden' },
+  navbar: { display: "flex", justifyContent: "space-between", alignItems: 'center', background: "#1a1a1a", borderBottom: "1px solid #333" },
   backBtn: { background: "rgba(255,255,255,0.1)", border: "1px solid #444", color: "white", padding: "8px 15px", borderRadius: "20px", cursor: "pointer" },
-  title: { margin: 0, fontSize: "20px" },
+  title: { margin: 0 },
   
-  mainContent: { maxWidth: '1000px', margin: '40px auto', padding: '0 20px' },
+  mainContent: { maxWidth: '1000px', margin: '40px auto' },
   
-  progressContainer: { display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '50px', gap: '15px' },
-  stepActive: { fontWeight: 'bold', fontSize: '14px', color: '#FFAB40' },
-  stepInactive: { fontWeight: 'bold', fontSize: '14px', color: '#555' },
-  stepFinished: { fontWeight: 'bold', fontSize: '14px', color: '#00E676' },
-  line: { width: '60px', height: '2px', background: '#333' },
+  progressContainer: { display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '40px' },
+  stepActive: { fontWeight: 'bold', fontSize: '13px', color: '#FFAB40' },
+  stepInactive: { fontWeight: 'bold', fontSize: '13px', color: '#555' },
+  stepFinished: { fontWeight: 'bold', fontSize: '13px', color: '#00E676' },
+  line: { width: '40px', height: '2px', background: '#333' },
 
-  grid: { display: 'flex', gap: '20px', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap' },
+  grid: { display: 'flex', alignItems: 'center', justifyContent: 'center', flexWrap: 'wrap', gap: '20px' },
   
-  card: { background: "#1e1e1e", width: "380px", minHeight: "380px", padding: "30px", borderRadius: "15px", border: "1px solid #333", display:'flex', flexDirection:'column' },
+  card: { background: "#1e1e1e", minHeight: "360px", padding: "25px", borderRadius: "15px", border: "1px solid #333", display:'flex', flexDirection:'column', boxSizing: 'border-box' },
   cardHeader: { display: 'flex', gap: '15px', alignItems: 'center', marginBottom: '20px', borderBottom: '1px solid #333', paddingBottom: '15px' },
   
   form: { display: 'flex', flexDirection: 'column', gap: '15px' },
-  label: { fontSize: '12px', color: '#888', textTransform: 'uppercase', fontWeight: 'bold' },
-  input: { padding: '12px', background: '#2a2a2a', border: '1px solid #444', color: 'white', borderRadius: '8px', outline: 'none', width: '100%', boxSizing: 'border-box' },
+  label: { fontSize: '11px', color: '#888', textTransform: 'uppercase', fontWeight: 'bold' },
+  input: { padding: '12px', background: '#2a2a2a', border: '1px solid #444', color: 'white', borderRadius: '8px', outline: 'none', width: '100%', boxSizing: 'border-box', fontSize: '14px' },
   
-  btnPrimary: { padding: '15px', background: '#FFAB40', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' },
-  btnSuccess: { padding: '15px', background: '#00E676', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '10px' },
+  btnPrimary: { padding: '14px', background: '#FFAB40', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' },
+  btnSuccess: { padding: '14px', background: '#00E676', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer', marginTop: '5px' },
 
-  completedBox: { background: 'rgba(0, 230, 118, 0.1)', color: '#00E676', padding: '20px', borderRadius: '10px', textAlign: 'center', border: '1px solid #00E676', fontWeight: 'bold', marginTop: 'auto', marginBottom: 'auto' },
-  lockedMsg: { padding: '20px', textAlign: 'center', color: '#666', fontStyle: 'italic', marginTop: 'auto', marginBottom: 'auto' }
+  completedBox: { background: 'rgba(0, 230, 118, 0.1)', color: '#00E676', padding: '15px', borderRadius: '10px', textAlign: 'center', border: '1px solid #00E676', fontWeight: 'bold', marginTop: 'auto', marginBottom: 'auto' },
+  lockedMsg: { padding: '20px', textAlign: 'center', color: '#666', fontStyle: 'italic', marginTop: 'auto', marginBottom: 'auto', fontSize: '14px' }
 };
 
 export default Delivery;

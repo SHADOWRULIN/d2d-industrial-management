@@ -25,7 +25,7 @@ const Landing = () => {
         poster="/poster.jpg" // Extra backup
         style={styles.videoBackground}
       >
-        <source src="/background.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dzdyhltkt/video/upload/f_auto,q_auto/v1775582168/background_ivh8e5.mp4" type="video/mp4" />
       </video>
       
       {/* 🌑 DARK OVERLAY (Layer 2) */}

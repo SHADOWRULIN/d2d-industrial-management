@@ -69,7 +69,7 @@ const Login = () => {
       
       <img src="/poster.jpg" alt="Background" style={styles.backgroundImage} />
       <video autoPlay loop muted playsInline style={styles.videoBackground}>
-        <source src="/background.mp4" type="video/mp4" />
+        <source src="https://res.cloudinary.com/dzdyhltkt/video/upload/f_auto,q_auto/v1775582168/background_ivh8e5.mp4" type="video/mp4" />
       </video>
       <div style={styles.overlay}></div>
 
